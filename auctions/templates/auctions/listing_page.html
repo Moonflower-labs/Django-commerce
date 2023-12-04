@@ -1,0 +1,78 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h2 class="text-center mb-3">Listing Details</h2>
+{% if user == listing.winner %}
+<p class="h3 alert alert-success text-success text-center mb-3">You have won this auction!</p>
+{% endif %}
+{% if listing.seller == user %}
+{% if listing.is_active %}
+<div class="float-end">
+    <form action="{% url 'close_bid' pk=listing.pk %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mb-3">Close Bid</button>
+    </form>
+</div>
+{% else %}
+<p>Listing is Closed</p>
+{% endif %}
+{% endif %}
+<div class="px-3">
+    <h3>{{listing.title}}</h3>
+    <p class="pt-4">{{listing.description}}</p>
+    {% if listing.image %}
+    <img src="{{listing.image}}" class="rounded-2" alt="{{listing.title}}" width="450">
+    {% else %}
+    <p>No image to display</p>
+    {% endif %}
+    <p class="text-muted mt-2">Listed by {{listing.seller}}</p>
+    <p>Listed on {{listing.listed_at}}</p>
+    <p>Category: {{listing.category}}</p>
+    <p class="fw-bold">Price £{{price}}</p>
+
+    <form action="{% url 'handle_watchlist' pk=listing.pk %}" method="post">
+        {% csrf_token %}
+        {% if in_watchlist %}
+        <button type="submit" class="btn btn-danger mb-3">Remove from Watchlist</button>
+        {% else %}
+        <button type="submit" class="btn btn-primary mb-3"><i class="bi bi-eye"></i> Add to Watchlist</button>
+        {% endif %}
+    </form>
+    {% if listing.is_active %}
+    <hr>
+    <div class="col-sm-8 col-lg-3 mx-auto text-center">
+        <h5 class="mb-3">Place new bid</h5>
+        <form action="{% url 'handle_bid' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_div }}
+            <button type="submit" class="btn btn-outline-success w-100 mb-3"><i class="bi bi-currency-pound"></i> Place
+                Bid</button>
+        </form>
+    </div>
+    <hr>
+    {% endif %}
+</div>
+<div class="container pt-4">
+    <h4 class="text-center mb-3">Comments</h4>
+    {% for comment in comments %}
+    <div class="card border-secondary mb-3">
+        <div class="card-body text-secondary">
+            <h5 class="card-title">{{ comment.user }}</h5>
+            <p class="card-text">{{ comment.text }}</p>
+        </div>
+    </div>
+    <p>{{ comment.created_at|date:"D d M Y , H:i" }}</p>
+    {% empty %}
+    <p class="text-center mb-3">No comments to display</p>
+    {% endfor %}
+    <hr>
+    <div class="mt-3 col-md-8 mx-auto">
+        <h5 class="text-center mb-3">Add a new comment</h5>
+        <form action="{% url 'handle_comment' pk=listing.pk %}" method="post">
+            {% csrf_token %}
+            {{ comment_form.as_div }}
+            <button type="submit" class="btn btn-outline-secondary w-100">Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

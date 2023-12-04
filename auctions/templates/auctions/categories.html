@@ -1,0 +1,56 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+<h2 class="mb-3 text-center">Categories</h2>
+<ul class="nav mb-5 nav-pills nav-justified">
+    {% for category in item_categories %}
+    <li class="nav-item border shadow-sm rounded-1 me-2 mb-1">
+        <a href="?category={{ category.category_type }}" class="nav-link {% if category.category_type == selected_category %}active
+    {% endif %}">{{ category|upper }}</a>
+    </li>
+    {% endfor %}
+</ul>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        {% if selected_category %}
+
+        {% if filtered_items %}
+
+        {% for listing in filtered_items %}
+        <div class="col-sm-6 mb-3">
+            <a href="listing/{{listing.pk}}" class="text-decoration-none text-black">
+                <div class="card d-flex flex-column h-100 mb-3 shadow mx-auto" style="width: 18rem;">
+
+                    <img src="{% if listing.image %}{{listing.image}}{% else %}https://fakeimg.pl/400x400{% endif %}"
+                        class="card-img-top" alt="{{listing.title}}" width="120" height="250">
+
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{listing.title}}</h5>
+                        <p class="card-text">{{listing.description|truncatechars_html:100}}</p>
+                        <div class="mt-auto">
+                            {% if listing.current_bid %}
+                            <p>Current Bid: <span class="fw-bold">£{{ listing.current_bid.amount }}</span></p>
+                            {% else %}
+                            <p>Starting Bid: <span class="fw-bold">£{{ listing.starting_bid }}</span></p>
+                            {% endif %}
+                            <p>Listed by {{listing.seller}}</p>
+                            <p>Listed on {{listing.listed_at}}</p>
+                            {% if not listing.is_active %}
+                            <p class="text-danger">Closed</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <p class="h3 text-center">No items found in the selected category.</p>
+        {% endif %}
+
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
